@@ -1,4 +1,4 @@
-// swift-tools-version: 5.9
+// swift-tools-version: 5.8
 import PackageDescription
 
 let dependencies: [Target.Dependency] = [
@@ -28,10 +28,12 @@ let package = Package(
         .executableTarget(
             name: "AdventOfCode",
             dependencies: dependencies,
+            path: "Sources",
             resources: [.copy("Data")]),
         .testTarget(
             name: "AdventOfCodeTests",
-            dependencies: ["AdventOfCode"] + dependencies
+            dependencies: ["AdventOfCode"] + dependencies,
+            path: "Tests"
         )
     ]
 )
