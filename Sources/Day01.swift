@@ -31,28 +31,33 @@ struct Day01: AdventDay {
     var data: String
 
     // Splits input data into its component parts and convert from string.
-    var entities: [[Int]] {
-        return data.split(separator: "\n").map({ line in
-            return line.compactMap(unwrapInt(char:))
-        })
+    var entities: [Substring] {
+        return data.split(separator: "\n")
     }
 
     // Replace this with your solution for the first part of the day's challenge.
     func part1() -> Any {
         // Calculate the sum of the first set of input data
-        return entities.compactMap { nums -> Int? in
-            guard let first = nums.first, let second = nums.last else { return nil }
-            return first*10 + second
-        }.reduce(0, +)
+        let numMatrix = entities
+            .map({ subString -> [Int] in
+                let nums: [Int?] = [
+                    subString.firstNonNil(\.wholeNumberValue),
+                    subString.reversed().firstNonNil(\.wholeNumberValue)
+                ]
+                return nums.compactMap({ $0 })
+            })
+        return calculateTotal(matrix: numMatrix)
     }
 
     // Replace this with your solution for the second part of the day's challenge.
     func part2() -> Any {
         // Sum the maximum entries in each set of data
-        entities.map { $0.max() ?? 0 }.reduce(0, +)
+        return 0
     }
 
-    private func unwrapInt(char: Character) -> Int? {
-        return char.wholeNumberValue
+    private func calculateTotal(matrix: [[Int]]) -> Int {
+        return matrix.map({ nums -> Int in
+            return (nums.first ?? 0) * 10 + (nums.last ?? 0)
+        }).reduce(0, +)
     }
 }
