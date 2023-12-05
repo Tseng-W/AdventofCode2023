@@ -1,4 +1,5 @@
 import Algorithms
+import Foundation
 
 /**
  --- Day 1: Trebuchet?! ---
@@ -39,20 +40,56 @@ struct Day01: AdventDay {
     func part1() -> Any {
         // Calculate the sum of the first set of input data
         let numMatrix = entities
-            .map({ subString -> [Int] in
+            .map { subString -> [Int] in
                 let nums: [Int?] = [
                     subString.firstNonNil(\.wholeNumberValue),
                     subString.reversed().firstNonNil(\.wholeNumberValue)
                 ]
                 return nums.compactMap({ $0 })
-            })
+            }
         return calculateTotal(matrix: numMatrix)
     }
 
+    // FIXME: Too low
     // Replace this with your solution for the second part of the day's challenge.
     func part2() -> Any {
+        let wordDict: [Substring: Int] = [
+            "zero": 0, "one": 1, "two": 2,
+            "three": 3, "four": 4, "five": 5,
+            "six": 6, "seven": 7, "eight":8,
+            "nine": 9
+        ]
+
+        let pattern = "zero|one|two|three|four|five|six|seven|eight|nine|\\d"
+        let regex = try! NSRegularExpression(pattern: pattern, options: [])
+
+        func transformResult(source: inout String, result: NSTextCheckingResult?) -> Int {
+            guard let result,
+                  let range = Range(result.range, in: source)
+            else { return 0 }
+            let subString = source[range]
+
+            if let num = Int(subString) {
+                source.replaceSubrange(range, with: "_")
+                return num
+            } else if let num = wordDict[subString] {
+                source.replaceSubrange(range, with: "_")
+                return num
+            } else {
+                return 0
+            }
+        }
+
         // Sum the maximum entries in each set of data
-        return 0
+        let numMatrix: [[Int]] = entities
+            .map { subString -> [Int] in
+                var string = String(subString)
+                let matched = regex.matches(in: string, range: NSRange(location: 0, length: string.utf16.count))
+                let digit = transformResult(source: &string, result: matched.last)
+                let tens = transformResult(source: &string, result: matched.first)
+                return [tens, digit]
+            }
+        return calculateTotal(matrix: numMatrix)
     }
 
     private func calculateTotal(matrix: [[Int]]) -> Int {
